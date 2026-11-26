@@ -1,0 +1,42 @@
+name: jet_engine_turbine_monitoring
+domain: iot
+description: "Aviation turbofan engine high-pressure spool telemetry with sudden thermal excursion"
+start_time: "2026-06-15 12:00:00"
+frequency: 100ms
+duration: 30m
+random_seed: 101
+variables:
+  - name: n1_rotor_rpm
+    unit: rpm
+    base: 9500.0
+    trend:
+      kind: linear
+      slope: 0.05
+    seasonality:
+      - period: 50.0
+        amplitude: 25.0
+        waveform: sine
+    noise:
+      kind: pink
+      std: 8.0
+  - name: n2_core_rpm
+    formula: "1.32 * n1_rotor_rpm + normal(0, 4)"
+  - name: egt_exhaust_gas_temp_c
+    formula: "520.0 + 0.02 * n2_core_rpm + normal(0, 3)"
+  - name: oil_pressure_psi
+    base: 45.0
+    process_type: ou
+    process_params:
+      theta: 0.2
+      mu: 45.0
+      sigma: 0.5
+anomalies:
+  - type: spike
+    target: egt_exhaust_gas_temp_c
+    start: "15m"
+    magnitude: 140.0
+  - type: drift
+    target: oil_pressure_psi
+    start: "18m"
+    duration: "5m"
+    magnitude: -18.0

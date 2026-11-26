@@ -1,0 +1,74 @@
+name: icu_multi_vital_monitoring
+domain: medical
+description: "Simulates high-acuity ICU patient telemetry undergoing acute septic shock"
+start_time: "2026-01-01 00:00:00"
+frequency: 5s
+duration: 12h
+random_seed: 42
+variables:
+  - name: heart_rate_bpm
+    unit: bpm
+    base: 75.0
+    min_val: 30.0
+    max_val: 220.0
+    process_type: ou
+    process_params:
+      theta: 0.08
+      mu: 74.0
+      sigma: 2.5
+  - name: blood_pressure_systolic_mmhg
+    unit: mmHg
+    base: 118.0
+    min_val: 40.0
+    max_val: 240.0
+    process_type: ou
+    process_params:
+      theta: 0.06
+      mu: 118.0
+      sigma: 3.0
+  - name: blood_pressure_diastolic_mmhg
+    unit: mmHg
+    base: 76.0
+    min_val: 25.0
+    max_val: 150.0
+    process_type: ou
+    process_params:
+      theta: 0.06
+      mu: 76.0
+      sigma: 2.0
+  - name: spo2_percent
+    unit: "%"
+    base: 98.0
+    min_val: 60.0
+    max_val: 100.0
+    noise:
+      kind: white
+      std: 0.4
+  - name: body_temperature_celsius
+    unit: "°C"
+    base: 36.8
+    min_val: 33.0
+    max_val: 42.5
+    process_type: ou
+    process_params:
+      theta: 0.02
+      mu: 36.8
+      sigma: 0.04
+correlations:
+  "blood_pressure_systolic_mmhg:blood_pressure_diastolic_mmhg": 0.88
+  "heart_rate_bpm:blood_pressure_systolic_mmhg": 0.25
+anomalies:
+  - type: regime_shift
+    target: heart_rate_bpm
+    start: "4h"
+    magnitude: 38.0
+  - type: drift
+    target: blood_pressure_systolic_mmhg
+    start: "4h"
+    duration: "6h"
+    magnitude: -35.0
+  - type: drift
+    target: body_temperature_celsius
+    start: "4h"
+    duration: "4h"
+    magnitude: 2.2
