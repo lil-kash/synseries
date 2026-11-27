@@ -49,6 +49,7 @@ Thumbs.db
 *.log
 !examples/**/*.csv
 !examples/**/*.parquet
+!submission_datasets/**
 
 # Editor files
 .idea/
